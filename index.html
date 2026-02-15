@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dev Monkey — социальная сеть разработчиков</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #14141f;
+            --bg-card: #1c1c2c;
+            --accent: #f39c12;
+            --accent-hover: #ffb347;
+            --accent-soft: rgba(243, 156, 18, 0.15);
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0c0;
+            --border-color: #2a2a3a;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f1c40f;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(243, 156, 18, 0.03) 0%, transparent 30%),
+                radial-gradient(circle at 90% 80%, rgba(243, 156, 18, 0.03) 0%, transparent 30%);
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, #1a1a2e 100%);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--accent);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent) 0%, #ffd700 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+            text-shadow: 0 2px 10px rgba(243, 156, 18, 0.3);
+        }
+        .logo span {
+            background: linear-gradient(135deg, #fff 0%, #e0e0e0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Кнопки */
+        button {
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            padding: 0.6rem 1.4rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+            letter-spacing: 0.3px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover {
+            background: var(--accent);
+            color: var(--bg-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(243, 156, 18, 0.4);
+        }
+
+        button.primary {
+            background: var(--accent);
+            color: var(--bg-primary);
+        }
+
+        button.primary:hover {
+            background: var(--accent-hover);
+            border-color: var(--accent-hover);
+        }
+
+        button.small {
+            padding: 0.4rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: var(--bg-primary);
+            padding: 0.4rem 1.2rem 0.4rem 0.4rem;
+            border-radius: 40px;
+            border: 2px solid var(--accent);
+            box-shadow: 0 0 15px rgba(243, 156, 18, 0.2);
+        }
+
+        .avatar-mini {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), #ffd700);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.3rem;
+            color: var(--bg-primary);
+            border: 2px solid white;
+        }
+
+        .avatar-mini img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        /* Main layout */
+        .main-layout {
+            display: flex;
+            padding: 2rem;
+            gap: 2rem;
+            flex-wrap: wrap;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* Левая панель */
+        .profiles-list {
+            background: var(--bg-card);
+            border-radius: 30px;
+            padding: 1.8rem;
+            width: 320px;
+            flex-shrink: 0;
+            height: fit-content;
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(5px);
+        }
+
+        .profiles-list h3 {
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .profile-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 1rem;
+            border-radius: 20px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid transparent;
+        }
+
+        .profile-item:hover {
+            background: var(--accent-soft);
+            border-color: var(--accent);
+            transform: translateX(5px);
+        }
+
+        .profile-item.active {
+            background: linear-gradient(90deg, var(--accent-soft) 0%, transparent 100%);
+            border-left: 4px solid var(--accent);
+        }
+
+        .item-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), #ffd700);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            border: 2px solid white;
+            overflow: hidden;
+        }
+
+        .item-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .item-info h4 {
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+        }
+
+        .item-info p {
+            font-size: 0.8rem;
+            opacity: 0.6;
+        }
+
+        /* Правая панель */
+        .profile-view {
+            background: var(--bg-card);
+            border-radius: 40px;
+            padding: 2.5rem;
+            flex: 1;
+            min-width: 400px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(5px);
+        }
+
+        .profile-header {
+            display: flex;
+            gap: 2.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 2.5rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .profile-avatar {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), #ffd700);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            border: 4px solid white;
+            box-shadow: 0 10px 30px rgba(243, 156, 18, 0.5);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px;
+            font-size: 0.8rem;
+            text-align: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .profile-avatar:hover .avatar-overlay {
+            opacity: 1;
+        }
+
+        .profile-title h2 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #fff, #e0e0e0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .profile-bio {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 500px;
+            line-height: 1.5;
+        }
+
+        /* Ссылки */
+        .links-section {
+            margin: 2rem 0;
+        }
+
+        .links-section h3 {
+            color: var(--accent);
+            margin-bottom: 1.2rem;
+            font-size: 1.3rem;
+        }
+
+        .link-card {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 50px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border: 1px solid var(--border-color);
+            transition: all 0.2s;
+        }
+
+        .link-card:hover {
+            border-color: var(--accent);
+            transform: translateX(5px);
+        }
+
+        .link-card a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .link-card a:hover {
+            text-decoration: underline;
+        }
+
+        /* Копирование ссылки */
+        .copy-link {
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
+            margin: 1.5rem 0;
+            background: var(--bg-secondary);
+            padding: 0.6rem 1.2rem;
+            border-radius: 50px;
+            width: fit-content;
+            border: 1px solid var(--border-color);
+        }
+
+        .copy-link input {
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            padding: 0.5rem;
+            width: 280px;
+            font-size: 0.9rem;
+        }
+
+        .copy-link input:focus {
+            outline: none;
+        }
+
+        /* Режим редактирования */
+        .edit-field {
+            margin-bottom: 1rem;
+        }
+
+        .edit-field input, 
+        .edit-field textarea,
+        .edit-field select {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.8rem 1.2rem;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 400px;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .edit-field input:focus,
+        .edit-field textarea:focus,
+        .edit-field select:focus {
+            border-color: var(--accent);
+            outline: none;
+            box-shadow: 0 0 0 3px var(--accent-soft);
+        }
+
+        .link-edit-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            background: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: 20px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .link-edit-row input {
+            flex: 1;
+            min-width: 200px;
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            color: white;
+            padding: 0.8rem 1.2rem;
+            border-radius: 16px;
+        }
+
+        /* Модальные окна */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            padding: 2.5rem;
+            border-radius: 40px;
+            width: 400px;
+            max-width: 90%;
+            border: 2px solid var(--accent);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
+        }
+
+        .modal-content h3 {
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+            font-size: 1.8rem;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 1rem;
+            margin: 10px 0;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            color: white;
+            border-radius: 16px;
+            font-size: 1rem;
+        }
+
+        .modal-content input:focus {
+            border-color: var(--accent);
+            outline: none;
+        }
+
+        .password-input {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .user-select-btn {
+            display: block;
+            width: 100%;
+            margin: 8px 0;
+            text-align: left;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            color: white;
+            padding: 1rem;
+            border-radius: 16px;
+            font-size: 1rem;
+        }
+
+        .user-select-btn:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--bg-primary);
+        }
+
+        .error-msg {
+            color: var(--danger);
+            margin: 10px 0;
+            font-size: 0.9rem;
+        }
+
+        .success-msg {
+            color: var(--success);
+            margin: 10px 0;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Анимации */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .profile-view {
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* Загрузка аватара */
+        .avatar-upload {
+            margin: 1rem 0;
+        }
+
+        .avatar-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-bottom: 1rem;
+            border: 3px solid var(--accent);
+        }
+
+        .avatar-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">Dev <span>Monkey</span></div>
+        <div id="authSection" class="auth-buttons">
+            <button id="loginBtn">Войти</button>
+            <button id="registerBtn" class="primary">Регистрация</button>
+        </div>
+    </header>
+
+    <div class="main-layout">
+        <!-- Левая панель: все профили (обновляется для всех) -->
+        <div class="profiles-list">
+            <h3>🐒 Активные обезьянки <span id="usersCount" style="color: var(--text-secondary); font-size: 0.9rem;"></span></h3>
+            <div id="profilesContainer"></div>
+        </div>
+
+        <!-- Правая панель: просмотр профиля -->
+        <div class="profile-view" id="profileView">
+            <div id="profileDisplay"></div>
+        </div>
+    </div>
+
+    <!-- Модалка регистрации -->
+    <div id="registerModal" class="modal hidden">
+        <div class="modal-content">
+            <h3>🐵 Регистрация</h3>
+            <input type="text" id="regNickname" placeholder="Никнейм" autocomplete="off">
+            <div class="password-input">
+                <input type="password" id="regPassword" placeholder="Пароль">
+                <span class="toggle-password" onclick="togglePassword('regPassword')">👁️</span>
+            </div>
+            <div class="password-input">
+                <input type="password" id="regConfirmPassword" placeholder="Повторите пароль">
+            </div>
+            <div class="avatar-upload">
+                <div class="avatar-preview" id="avatarPreview">
+                    <img src="https://via.placeholder.com/100/f39c12/ffffff?text=🐵" alt="preview">
+                </div>
+                <input type="file" id="avatarUpload" accept="image/*" style="display: none;">
+                <button class="small" onclick="document.getElementById('avatarUpload').click()">Выбрать аватар</button>
+            </div>
+            <div id="regError" class="error-msg"></div>
+            <button id="registerConfirm" class="primary" style="width: 100%; margin: 10px 0;">Зарегистрироваться</button>
+            <button id="closeRegister" style="width: 100%;">Отмена</button>
+        </div>
+    </div>
+
+    <!-- Модалка входа -->
+    <div id="loginModal" class="modal hidden">
+        <div class="modal-content">
+            <h3>🔐 Вход</h3>
+            <select id="loginUserSelect" style="width: 100%; padding: 1rem; margin: 10px 0; background: var(--bg-secondary); border: 2px solid var(--border-color); color: white; border-radius: 16px;">
+                <option value="">Выберите пользователя</option>
+            </select>
+            <div class="password-input">
+                <input type="password" id="loginPassword" placeholder="Пароль">
+                <span class="toggle-password" onclick="togglePassword('loginPassword')">👁️</span>
+            </div>
+            <div id="loginError" class="error-msg"></div>
+            <button id="loginConfirm" class="primary" style="width: 100%; margin: 10px 0;">Войти</button>
+            <button id="closeLogin" style="width: 100%;">Отмена</button>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ---- данные и localstorage ----
+            const STORAGE_KEY = 'devmonkey_profiles_v2';
+            const SESSION_KEY = 'devmonkey_current_user_v2';
+
+            // База пользователей
+            let users = [];
+            let currentUser = null;
+
+            // Загрузка данных
+            function loadData() {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                if (stored) {
+                    users = JSON.parse(stored);
+                } else {
+                    // Дефолтные пользователи с паролями
+                    users = [
+                        { 
+                            nickname: 'Alice', 
+                            password: '123', 
+                            bio: 'Фронтенд-разработчик 🐈', 
+                            avatar: 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'50\' fill=\'%23f39c12\'/%3E%3Ctext x=\'50\' y=\'70\' font-size=\'50\' text-anchor=\'middle\' fill=\'white\'%3E👩%3C/text%3E%3C/svg%3E',
+                            links: [
+                                { title: 'GitHub', url: 'https://github.com/alice' },
+                                { title: 'Telegram', url: 'https://t.me/alice_dev' }
+                            ]
+                        },
+                        { 
+                            nickname: 'Bob', 
+                            password: '123', 
+                            bio: 'Бэкенд-архитектор 🐻', 
+                            avatar: 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'50\' fill=\'%23f39c12\'/%3E%3Ctext x=\'50\' y=\'70\' font-size=\'50\' text-anchor=\'middle\' fill=\'white\'%3E👨%3C/text%3E%3C/svg%3E',
+                            links: [
+                                { title: 'LinkedIn', url: 'https://linkedin.com/in/bob' }
+                            ]
+                        },
+                        { 
+                            nickname: 'Charlie', 
+                            password: '123', 
+                            bio: 'Fullstack разработчик 🐒', 
+                            avatar: 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'50\' fill=\'%23f39c12\'/%3E%3Ctext x=\'50\' y=\'70\' font-size=\'50\' text-anchor=\'middle\' fill=\'white\'%3E🐵%3C/text%3E%3C/svg%3E',
+                            links: []
+                        }
+                    ];
+                    saveUsers();
+                }
+
+                // Текущая сессия
+                const session = localStorage.getItem(SESSION_KEY);
+                if (session) {
+                    const found = users.find(u => u.nickname === session);
+                    if (found) {
+                        currentUser = { ...found };
+                        // Не храним пароль в currentUser для безопасности
+                        delete currentUser.password;
+                    }
+                }
+
+                // Обновляем счетчик пользователей
+                updateUsersCount();
+            }
+
+            function saveUsers() {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
+                // После сохранения обновляем список для всех
+                renderProfilesList(currentUser?.nickname || null);
+                updateUsersCount();
+            }
+
+            function updateUsersCount() {
+                const countEl = document.getElementById('usersCount');
+                if (countEl) {
+                    countEl.textContent = `(${users.length})`;
+                }
+            }
+
+            function saveSession(nickname) {
+                if (nickname) {
+                    localStorage.setItem(SESSION_KEY, nickname);
+                } else {
+                    localStorage.removeItem(SESSION_KEY);
+                }
+            }
+
+            // Поиск пользователя
+            function getUserByNick(nick) {
+                return users.find(u => u.nickname === nick);
+            }
+
+            // Обновление пользователя
+            function updateUserInList(updatedUser) {
+                const index = users.findIndex(u => u.nickname === updatedUser.nickname);
+                if (index !== -1) {
+                    // Сохраняем пароль из старой записи
+                    const oldPassword = users[index].password;
+                    users[index] = { ...updatedUser, password: oldPassword };
+                    saveUsers();
+                    
+                    // Если это текущий пользователь, обновляем сессию (без пароля)
+                    if (currentUser && currentUser.nickname === updatedUser.nickname) {
+                        currentUser = { ...updatedUser };
+                        delete currentUser.password;
+                    }
+                    
+                    // Принудительно обновляем список профилей для всех
+                    renderProfilesList(currentUser?.nickname || null);
+                    
+                    // Если просматриваемый профиль - обновленный, перерендериваем его
+                    const activeProfile = document.querySelector('.profile-item.active');
+                    if (activeProfile && activeProfile.dataset.nick === updatedUser.nickname) {
+                        renderProfileView(updatedUser.nickname);
+                    }
+                }
+            }
+
+            // ---- Рендеринг списка профилей (теперь видят все новые профили) ----
+            function renderProfilesList(activeNick) {
+                const container = document.getElementById('profilesContainer');
+                if (!container) return;
+                
+                container.innerHTML = '';
+                
+                // Сортируем пользователей по алфавиту
+                const sortedUsers = [...users].sort((a, b) => a.nickname.localeCompare(b.nickname));
+                
+                sortedUsers.forEach(user => {
+                    const item = document.createElement('div');
+                    item.className = `profile-item ${activeNick === user.nickname ? 'active' : ''}`;
+                    item.dataset.nick = user.nickname;
+                    
+                    // Аватарка (если есть)
+                    const avatarHtml = user.avatar && user.avatar.startsWith('data:') 
+                        ? `<img src="${user.avatar}" alt="${user.nickname}">`
+                        : (user.avatar || '🐵');
+                    
+                    item.innerHTML = `
+                        <div class="item-avatar">${avatarHtml}</div>
+                        <div class="item-info">
+                            <h4>${user.nickname}</h4>
+                            <p>${user.links ? user.links.length : 0} ссылок</p>
+                        </div>
+                    `;
+                    
+                    item.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        renderProfileView(user.nickname);
+                        renderProfilesList(user.nickname);
+                        // Обновляем URL без перезагрузки
+                        window.location.hash = `profile-${user.nickname}`;
+                    });
+                    
+                    container.appendChild(item);
+                });
+            }
+
+            // ---- Конвертация изображения в base64 ----
+            function fileToBase64(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = error => reject(error);
+                });
+            }
+
+            // ---- Отображение профиля ----
+            function renderProfileView(nickname) {
+                const user = getUserByNick(nickname);
+                if (!user) return;
+                
+                const container = document.getElementById('profileDisplay');
+                const isOwner = currentUser && currentUser.nickname === nickname;
+
+                // Аватарка
+                const avatarHtml = user.avatar && user.avatar.startsWith('data:')
+                    ? `<img src="${user.avatar}" alt="${user.nickname}">`
+                    : (user.avatar || '🐵');
+
+                let html = `
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            ${avatarHtml}
+                            ${isOwner ? '<div class="avatar-overlay" onclick="document.getElementById(\'editAvatarFile\').click()">Изменить</div>' : ''}
+                        </div>
+                        <div class="profile-title">
+                            <h2>${user.nickname}</h2>
+                            <div class="profile-bio">${user.bio || 'Разработчик-обезьян'}</div>
+                        </div>
+                    </div>
+                `;
+
+                // Ссылка для копирования
+                const profileUrl = `${window.location.origin}${window.location.pathname}#profile-${user.nickname}`;
+                html += `
+                    <div class="copy-link">
+                        <input type="text" value="${profileUrl}" id="profileLinkInput" readonly>
+                        <button class="small" id="copyLinkBtn">Копировать</button>
+                    </div>
+                `;
+
+                // Ссылки пользователя
+                html += `<div class="links-section"><h3>🔗 Полезные ссылки</h3>`;
+                if (user.links && user.links.length > 0) {
+                    user.links.forEach(link => {
+                        html += `
+                            <div class="link-card">
+                                <span>🔗</span>
+                                <a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.title}</a>
+                            </div>
+                        `;
+                    });
+                } else {
+                    html += `<p style="color: var(--text-secondary);">Пока нет ссылок</p>`;
+                }
+                html += `</div>`;
+
+                // Кнопка редактирования для владельца
+                if (isOwner) {
+                    html += `
+                        <div class="action-buttons">
+                            <button id="startEditProfileBtn" class="primary">✏️ Редактировать профиль</button>
+                        </div>
+                    `;
+                }
+
+                container.innerHTML = html;
+
+                // Обработчики
+                document.getElementById('copyLinkBtn')?.addEventListener('click', () => {
+                    const input = document.getElementById('profileLinkInput');
+                    input.select();
+                    navigator.clipboard.writeText(input.value).then(() => {
+                        const btn = document.getElementById('copyLinkBtn');
+                        const originalText = btn.textContent;
+                        btn.textContent = 'Скопировано!';
+                        setTimeout(() => btn.textContent = originalText, 2000);
+                    });
+                });
+
+                if (isOwner) {
+                    document.getElementById('startEditProfileBtn')?.addEventListener('click', () => {
+                        renderEditProfile(nickname);
+                    });
+                }
+            }
+
+            // ---- Режим редактирования ----
+            function renderEditProfile(nickname) {
+                const user = getUserByNick(nickname);
+                if (!user || !currentUser || currentUser.nickname !== nickname) return;
+
+                const container = document.getElementById('profileDisplay');
+                
+                // Генерируем поля для ссылок
+                let linksHtml = '';
+                user.links.forEach((link, index) => {
+                    linksHtml += `
+                        <div class="link-edit-row" data-index="${index}">
+                            <input type="text" placeholder="Название" value="${link.title}" class="link-title-input">
+                            <input type="url" placeholder="https://..." value="${link.url}" class="link-url-input">
+                            <button class="small remove-link-btn" style="background: var(--danger); border-color: var(--danger);">❌</button>
+                        </div>
+                    `;
+                });
+
+                const editHtml = `
+                    <div class="profile-header">
+                        <div class="profile-avatar" id="editAvatarPreview">
+                            ${user.avatar && user.avatar.startsWith('data:') 
+                                ? `<img src="${user.avatar}" alt="avatar" style="width:100%; height:100%; object-fit:cover;">`
+                                : (user.avatar || '🐵')}
+                        </div>
+                        <div class="profile-title">
+                            <div class="edit-field">
+                                <input type="text" id="editNickname" value="${user.nickname}" placeholder="Никнейм" disabled style="background: var(--bg-secondary);">
+                            </div>
+                            <div class="edit-field">
+                                <textarea id="editBio" rows="3" placeholder="О себе...">${user.bio || ''}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <input type="file" id="editAvatarFile" accept="image/*" style="display: none;">
+                    
+                    <div class="links-section">
+                        <h3>🔗 Редактировать ссылки</h3>
+                        <div id="linksEditContainer">${linksHtml}</div>
+                        <button id="addLinkBtn" class="small" style="margin-top: 10px;">➕ Добавить ссылку</button>
+                    </div>
+                    
+                    <div class="action-buttons" style="display: flex; gap: 1rem; margin-top: 2rem;">
+                        <button id="saveProfileBtn" class="primary">💾 Сохранить изменения</button>
+                        <button id="cancelEditBtn">Отмена</button>
+                    </div>
+                `;
+                
+                container.innerHTML = editHtml;
+
+                // Загрузка аватара
+                document.getElementById('editAvatarFile')?.addEventListener('change', async (e) => {
+                    if (e.target.files && e.target.files[0]) {
+                        const base64 = await fileToBase64(e.target.files[0]);
+                        const preview = document.getElementById('editAvatarPreview');
+                        if (preview) {
+                            preview.innerHTML = `<img src="${base64}" alt="avatar" style="width:100%; height:100%; object-fit:cover;">`;
+                        }
+                        // Временно сохраняем в data-атрибут
+                        preview.dataset.newAvatar = base64;
+                    }
+                });
+
+                // Добавление ссылки
+                document.getElementById('addLinkBtn')?.addEventListener('click', () => {
+                    const container = document.getElementById('linksEditContainer');
+                    const newRow = document.createElement('div');
+                    newRow.className = 'link-edit-row';
+                    newRow.innerHTML = `
+                        <input type="text" placeholder="Название" class="link-title-input" value="Новая ссылка">
+                        <input type="url" placeholder="https://..." class="link-url-input" value="https://">
+                        <button class="small remove-link-btn" style="background: var(--danger); border-color: var(--danger);">❌</button>
+                    `;
+                    container.appendChild(newRow);
+                    attachRemoveListeners();
+                });
+
+                function attachRemoveListeners() {
+                    document.querySelectorAll('.remove-link-btn').forEach(btn => {
+                        btn.removeEventListener('click', removeHandler);
+                        btn.addEventListener('click', removeHandler);
+                    });
+                }
+
+                function removeHandler(e) {
+                    e.preventDefault();
+                    e.target.closest('.link-edit-row')?.remove();
+                }
+                
+                attachRemoveListeners();
+
+                // Сохранение
+                document.getElementById('saveProfileBtn')?.addEventListener('click', async () => {
+                    const newBio = document.getElementById('editBio')?.value || '';
+                    
+                    // Получаем новый аватар если есть
+                    const preview = document.getElementById('editAvatarPreview');
+                    let newAvatar = user.avatar;
+                    if (preview && preview.dataset.newAvatar) {
+                        newAvatar = preview.dataset.newAvatar;
+                    }
+
+                    // Собираем ссылки
+                    const linkRows = document.querySelectorAll('.link-edit-row');
+                    const newLinks = [];
+                    linkRows.forEach(row => {
+                        const title = row.querySelector('.link-title-input')?.value.trim();
+                        const url = row.querySelector('.link-url-input')?.value.trim();
+                        if (title && url) {
+                            newLinks.push({ title, url });
+                        }
+                    });
+
+                    const updatedUser = {
+                        ...user,
+                        bio: newBio,
+                        avatar: newAvatar,
+                        links: newLinks
+                    };
+
+                    // Обновляем в базе
+                    updateUserInList(updatedUser);
+                    
+                    // Выходим из режима редактирования
+                    renderProfileView(nickname);
+                });
+
+                document.getElementById('cancelEditBtn')?.addEventListener('click', () => {
+                    renderProfileView(nickname);
+                });
+            }
+
+            // ---- Обновление шапки ----
+            function renderHeader() {
+                const authSection = document.getElementById('authSection');
+                if (currentUser) {
+                    const avatarHtml = currentUser.avatar && currentUser.avatar.startsWith('data:')
+                        ? `<img src="${currentUser.avatar}" alt="${currentUser.nickname}">`
+                        : (currentUser.avatar || '🐵');
+                    
+                    authSection.innerHTML = `
+                        <div class="user-info">
+                            <div class="avatar-mini">${avatarHtml}</div>
+                            <span class="username-mini">${currentUser.nickname}</span>
+                        </div>
+                        <button id="logoutBtn">Выйти</button>
+                    `;
+                    
+                    document.getElementById('logoutBtn')?.addEventListener('click', () => {
+                        currentUser = null;
+                        saveSession(null);
+                        renderHeader();
+                        if (users.length > 0) {
+                            renderProfileView(users[0].nickname);
+                            renderProfilesList(users[0].nickname);
+                        }
+                    });
+                } else {
+                    authSection.innerHTML = `
+                        <button id="loginBtn">Войти</button>
+                        <button id="registerBtn" class="primary">Регистрация</button>
+                    `;
+                    
+                    document.getElementById('loginBtn')?.addEventListener('click', openLoginModal);
+                    document.getElementById('registerBtn')?.addEventListener('click', openRegisterModal);
+                }
+            }
+
+            // ---- Регистрация ----
+            function openRegisterModal() {
+                const modal = document.getElementById('registerModal');
+                const nicknameInput = document.getElementById('regNickname');
+                const passwordInput = document.getElementById('regPassword');
+                const confirmInput = document.getElementById('regConfirmPassword');
+                const errorDiv = document.getElementById('regError');
+                const avatarInput = document.getElementById('avatarUpload');
+                let selectedAvatar = null;
+                
+                nicknameInput.value = '';
+                passwordInput.value = '';
+                confirmInput.value = '';
+                errorDiv.textContent = '';
+                modal.classList.remove('hidden');
+
+                // Превью аватара
+                document.getElementById('avatarPreview').innerHTML = '<img src="https://via.placeholder.com/100/f39c12/ffffff?text=🐵" alt="preview">';
+                
+                avatarInput.onchange = async (e) => {
+                    if (e.target.files && e.target.files[0]) {
+                        selectedAvatar = await fileToBase64(e.target.files[0]);
+                        document.getElementById('avatarPreview').innerHTML = `<img src="${selectedAvatar}" alt="preview" style="width:100%; height:100%; object-fit:cover;">`;
+                    }
+                };
+
+                document.getElementById('registerConfirm').onclick = () => {
+                    const nickname = nicknameInput.value.trim();
+                    const password = passwordInput.value;
+                    const confirm = confirmInput.value;
+
+                    if (!nickname || !password) {
+                        errorDiv.textContent = 'Заполните все поля';
+                        return;
+                    }
+
+                    if (password !== confirm) {
+                        errorDiv.textContent = 'Пароли не совпадают';
+                        return;
+                    }
+
+                    if (password.length < 3) {
+                        errorDiv.textContent = 'Пароль должен быть минимум 3 символа';
+                        return;
+                    }
+
+                    if (users.some(u => u.nickname.toLowerCase() === nickname.toLowerCase())) {
+                        errorDiv.textContent = 'Этот никнейм уже занят';
+                        return;
+                    }
+
+                    // Создаем нового пользователя
+                    const newUser = {
+                        nickname: nickname,
+                        password: password,
+                        bio: 'Новая обезьянка',
+                        avatar: selectedAvatar || 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'50\' fill=\'%23f39c12\'/%3E%3Ctext x=\'50\' y=\'70\' font-size=\'50\' text-anchor=\'middle\' fill=\'white\'%3E🐵%3C/text%3E%3C/svg%3E',
+                        links: []
+                    };
+
+                    users.push(newUser);
+                    saveUsers();
+                    
+                    // Автоматический вход
+                    currentUser = { ...newUser };
+                    delete currentUser.password;
+                    saveSession(nickname);
+                    
+                    modal.classList.add('hidden');
+                    renderHeader();
+                    renderProfilesList(nickname);
+                    renderProfileView(nickname);
+                    window.location.hash = `profile-${nickname}`;
+                };
+
+                document.getElementById('closeRegister').onclick = () => {
+                    modal.classList.add('hidden');
+                };
+            }
+
+            // ---- Вход с паролем ----
+            function openLoginModal() {
+                const modal = document.getElementById('loginModal');
+                const select = document.getElementById('loginUserSelect');
+                const passwordInput = document.getElementById('loginPassword');
+                const errorDiv = document.getElementById('loginError');
+                
+                // Заполняем список пользователей
+                select.innerHTML = '<option value="">Выберите пользователя</option>';
+                users.forEach(user => {
+                    const option = document.createElement('option');
+                    option.value = user.nickname;
+                    option.textContent = `${user.avatar ? '🐵' : '👤'} ${user.nickname}`;
+                    select.appendChild(option);
+                });
+                
+                passwordInput.value = '';
+                errorDiv.textContent = '';
+                modal.classList.remove('hidden');
+
+                document.getElementById('loginConfirm').onclick = () => {
+                    const nickname = select.value;
+                    const password = passwordInput.value;
+
+                    if (!nickname) {
+                        errorDiv.textContent = 'Выберите пользователя';
+                        return;
+                    }
+
+                    const user = getUserByNick(nickname);
+                    if (!user) {
+                        errorDiv.textContent = 'Пользователь не найден';
+                        return;
+                    }
+
+                    if (user.password !== password) {
+                        errorDiv.textContent = 'Неверный пароль';
+                        return;
+                    }
+
+                    // Успешный вход
+                    currentUser = { ...user };
+                    delete currentUser.password;
+                    saveSession(nickname);
+                    
+                    modal.classList.add('hidden');
+                    renderHeader();
+                    renderProfilesList(nickname);
+                    renderProfileView(nickname);
+                    window.location.hash = `profile-${nickname}`;
+                };
+
+                document.getElementById('closeLogin').onclick = () => {
+                    modal.classList.add('hidden');
+                };
+            }
+
+            // ---- Показать/скрыть пароль ----
+            window.togglePassword = function(fieldId) {
+                const field = document.getElementById(fieldId);
+                if (field.type === 'password') {
+                    field.type = 'text';
+                } else {
+                    field.type = 'password';
+                }
+            };
+
+            // ---- Инициализация ----
+            function init() {
+                loadData();
+                renderHeader();
+
+                // Проверяем hash
+                let initialNick = null;
+                const hashMatch = window.location.hash.match(/^#profile-(.+)$/);
+                if (hashMatch) {
+                    const hashNick = decodeURIComponent(hashMatch[1]);
+                    if (getUserByNick(hashNick)) {
+                        initialNick = hashNick;
+                    }
+                }
+
+                if (!initialNick) {
+                    initialNick = currentUser ? currentUser.nickname : (users[0]?.nickname || null);
+                }
+
+                if (initialNick) {
+                    renderProfileView(initialNick);
+                    renderProfilesList(initialNick);
+                }
+
+                // Слушаем изменения hash
+                window.addEventListener('hashchange', () => {
+                    const match = window.location.hash.match(/^#profile-(.+)$/);
+                    if (match) {
+                        const nick = decodeURIComponent(match[1]);
+                        if (getUserByNick(nick)) {
+                            renderProfileView(nick);
+                            renderProfilesList(nick);
+                        }
+                    }
+                });
+
+                // Периодически проверяем обновления (для синхронизации между вкладками)
+                window.addEventListener('storage', (e) => {
+                    if (e.key === STORAGE_KEY) {
+                        // Данные изменились в другой вкладке
+                        loadData();
+                        renderHeader();
+                        
+                        // Определяем текущий активный профиль
+                        const activeItem = document.querySelector('.profile-item.active');
+                        const activeNick = activeItem ? activeItem.dataset.nick : (users[0]?.nickname || null);
+                        
+                        if (activeNick) {
+                            renderProfileView(activeNick);
+                            renderProfilesList(activeNick);
+                        }
+                    }
+                });
+            }
+
+            // Запуск
+            init();
+        })();
+    </script>
+</body>
+</html>
