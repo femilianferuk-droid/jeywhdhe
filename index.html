@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dev Monkey — профили разработчиков</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background-color: #1e1e2f;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background-color: #2a2a3a;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #f39c12;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #f39c12;
+            letter-spacing: -0.5px;
+        }
+        .logo span {
+            color: white;
+            font-weight: 300;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            background: #1e1e2f;
+            padding: 0.4rem 1rem 0.4rem 0.4rem;
+            border-radius: 40px;
+            border: 1px solid #f39c12;
+        }
+        .avatar-mini {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #f39c12;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #1e1e2f;
+        }
+        .username-mini {
+            font-weight: 600;
+        }
+
+        button {
+            background: transparent;
+            border: 1px solid #f39c12;
+            color: #f39c12;
+            padding: 0.5rem 1.2rem;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.9rem;
+        }
+        button:hover {
+            background: #f39c12;
+            color: #1e1e2f;
+        }
+        button.primary {
+            background: #f39c12;
+            color: #1e1e2f;
+        }
+        button.primary:hover {
+            background: #ffb347;
+            border-color: #ffb347;
+        }
+        button.small {
+            padding: 0.3rem 0.8rem;
+            font-size: 0.8rem;
+        }
+
+        /* Main layout */
+        .main-layout {
+            display: flex;
+            flex: 1;
+            padding: 1.5rem;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        /* Left panel — список профилей */
+        .profiles-list {
+            background: #2a2a3a;
+            border-radius: 20px;
+            padding: 1.5rem;
+            width: 280px;
+            flex-shrink: 0;
+            height: fit-content;
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+        .profiles-list h3 {
+            margin-bottom: 1.2rem;
+            color: #f39c12;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+        .profile-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0.8rem;
+            border-radius: 16px;
+            margin-bottom: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+            background: rgba(255,255,255,0.02);
+        }
+        .profile-item:hover {
+            background: #3a3a4e;
+        }
+        .profile-item.active {
+            background: #f39c1222;
+            border-left: 4px solid #f39c12;
+        }
+        .item-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #f39c12;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        .item-info h4 {
+            font-size: 1rem;
+        }
+        .item-info p {
+            font-size: 0.75rem;
+            opacity: 0.7;
+        }
+
+        /* Right panel — профиль */
+        .profile-view {
+            background: #2a2a3a;
+            border-radius: 30px;
+            padding: 2rem;
+            flex: 1;
+            min-width: 300px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+        .profile-header {
+            display: flex;
+            gap: 1.8rem;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #f39c12;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            border: 4px solid #1e1e2f;
+            box-shadow: 0 4px 15px rgba(243,156,18,0.3);
+        }
+        .profile-title h2 {
+            font-size: 2.2rem;
+            margin-bottom: 0.3rem;
+        }
+        .profile-bio {
+            font-size: 1rem;
+            opacity: 0.8;
+            max-width: 400px;
+        }
+        .copy-link {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            margin: 1rem 0;
+            background: #1e1e2f;
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            width: fit-content;
+        }
+        .copy-link input {
+            background: transparent;
+            border: none;
+            color: white;
+            padding: 0.4rem;
+            width: 220px;
+            font-size: 0.85rem;
+        }
+        .copy-link button {
+            padding: 0.2rem 1rem;
+        }
+
+        .links-section {
+            margin: 2rem 0 1rem;
+        }
+        .links-section h3 {
+            color: #f39c12;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+        .link-card {
+            background: #1e1e2f;
+            padding: 0.8rem 1.2rem;
+            border-radius: 40px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .link-card a {
+            color: #f39c12;
+            text-decoration: none;
+            word-break: break-all;
+        }
+        .link-card a:hover {
+            text-decoration: underline;
+        }
+
+        .edit-mode input, .edit-mode textarea, .edit-mode select {
+            background: #1e1e2f;
+            border: 1px solid #f39c12;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            width: 100%;
+            max-width: 300px;
+        }
+        .edit-mode .link-edit-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            background: #1e1e2f33;
+            padding: 8px;
+            border-radius: 40px;
+            margin-bottom: 8px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        /* modal */
+        .modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: #2a2a3a;
+            padding: 2rem;
+            border-radius: 40px;
+            width: 350px;
+            max-width: 90%;
+            border: 1px solid #f39c12;
+        }
+        .modal-content h3 {
+            margin-bottom: 1.2rem;
+        }
+        .modal-content input, .modal-content select {
+            width: 100%;
+            padding: 0.8rem;
+            margin: 10px 0;
+            background: #1e1e2f;
+            border: 1px solid #f39c12;
+            color: white;
+            border-radius: 40px;
+        }
+        .user-select-btn {
+            display: block;
+            width: 100%;
+            margin: 6px 0;
+            text-align: left;
+            background: #1e1e2f;
+            border: none;
+            color: white;
+            padding: 0.7rem 1rem;
+        }
+        .user-select-btn:hover {
+            background: #f39c12;
+            color: #1e1e2f;
+        }
+        .error-msg {
+            color: #ff6b6b;
+            margin-top: 6px;
+            font-size: 0.9rem;
+        }
+
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">Dev <span>Monkey</span></div>
+        <div id="authSection" class="auth-buttons">
+            <button id="loginBtn">Войти</button>
+            <button id="registerBtn" class="primary">Регистрация</button>
+        </div>
+    </header>
+
+    <div class="main-layout">
+        <!-- Левая панель: все профили -->
+        <div class="profiles-list">
+            <h3>🐒 Обезьянки</h3>
+            <div id="profilesContainer"></div>
+        </div>
+
+        <!-- Правая панель: просмотр профиля -->
+        <div class="profile-view" id="profileView">
+            <div id="profileDisplay"></div>
+        </div>
+    </div>
+
+    <!-- Модалки -->
+    <div id="registerModal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Регистрация</h3>
+            <input type="text" id="regNickname" placeholder="Никнейм" autocomplete="off">
+            <div id="regError" class="error-msg"></div>
+            <button id="registerConfirm" class="primary">Зарегистрироваться</button>
+            <button id="closeRegister">Отмена</button>
+        </div>
+    </div>
+
+    <div id="loginModal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Войти как</h3>
+            <div id="usersList"></div>
+            <button id="closeLogin">Отмена</button>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ---- данные и localstorage ----
+            const STORAGE_KEY = 'devmonkey_profiles';
+            const SESSION_KEY = 'devmonkey_current_user';
+
+            // база пользователей
+            let users = [];
+            let currentUser = null; // { nickname, bio, avatar, links }
+
+            // загрузка/инициализация
+            function loadData() {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                if (stored) {
+                    users = JSON.parse(stored);
+                } else {
+                    // дефолтные
+                    users = [
+                        { nickname: 'Alice', bio: 'Фронтенд-обезьянка', avatar: '🙈', links: [{ title: 'GitHub', url: 'https://github.com/alice' }] },
+                        { nickname: 'Bob', bio: 'Бэкенд-бабуин', avatar: '🙉', links: [{ title: 'LinkedIn', url: 'https://linkedin.com/in/bob' }] },
+                        { nickname: 'Charlie', bio: 'Fullstack 🐒', avatar: '🐒', links: [] },
+                    ];
+                    saveUsers();
+                }
+                // текущая сессия
+                const session = localStorage.getItem(SESSION_KEY);
+                if (session) {
+                    const found = users.find(u => u.nickname === session);
+                    if (found) currentUser = { ...found }; // копия
+                }
+            }
+            function saveUsers() {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
+            }
+            function saveSession(nickname) {
+                if (nickname) localStorage.setItem(SESSION_KEY, nickname);
+                else localStorage.removeItem(SESSION_KEY);
+            }
+
+            // ---- вспомогательные ----
+            function getUserByNick(nick) {
+                return users.find(u => u.nickname === nick);
+            }
+
+            // обновить данные юзера в массиве
+            function updateUserInList(updatedUser) {
+                const index = users.findIndex(u => u.nickname === updatedUser.nickname);
+                if (index !== -1) {
+                    users[index] = { ...updatedUser };
+                    saveUsers();
+                }
+            }
+
+            // ---- рендеринг списка профилей (левая панель) ----
+            function renderProfilesList(activeNick) {
+                const container = document.getElementById('profilesContainer');
+                container.innerHTML = '';
+                users.forEach(user => {
+                    const item = document.createElement('div');
+                    item.className = `profile-item ${activeNick === user.nickname ? 'active' : ''}`;
+                    item.dataset.nick = user.nickname;
+                    item.innerHTML = `
+                        <div class="item-avatar">${user.avatar || '🐵'}</div>
+                        <div class="item-info">
+                            <h4>${user.nickname}</h4>
+                            <p>${user.links ? user.links.length : 0} ссылок</p>
+                        </div>
+                    `;
+                    item.addEventListener('click', () => {
+                        renderProfileView(user.nickname);
+                        renderProfilesList(user.nickname);
+                    });
+                    container.appendChild(item);
+                });
+            }
+
+            // ---- отображение профиля в правой панели ----
+            function renderProfileView(nickname, isEditing = false) {
+                const user = getUserByNick(nickname);
+                if (!user) return;
+                const container = document.getElementById('profileDisplay');
+                const isOwner = currentUser && currentUser.nickname === nickname;
+
+                let html = `
+                    <div class="profile-header">
+                        <div class="profile-avatar">${user.avatar || '🐵'}</div>
+                        <div class="profile-title">
+                            <h2>${user.nickname}</h2>
+                            <div class="profile-bio">${user.bio || 'Разработчик-обезьян'}</div>
+                        </div>
+                    </div>
+                `;
+
+                // кнопка копирования ссылки
+                const profileUrl = `${window.location.origin}${window.location.pathname}#profile-${user.nickname}`;
+                html += `
+                    <div class="copy-link">
+                        <input type="text" value="${profileUrl}" id="profileLinkInput" readonly>
+                        <button class="small" id="copyLinkBtn">Копировать</button>
+                    </div>
+                `;
+
+                // ссылки
+                html += `<div class="links-section"><h3>🔗 Ссылки</h3>`;
+                if (user.links && user.links.length > 0) {
+                    user.links.forEach(link => {
+                        html += `<div class="link-card">🔗 <a href="${link.url}" target="_blank">${link.title}</a></div>`;
+                    });
+                } else {
+                    html += `<p>Пока нет ссылок</p>`;
+                }
+                html += `</div>`;
+
+                // если владелец и не режим редактирования — показываем кнопку редактировать
+                if (isOwner && !isEditing) {
+                    html += `<div class="action-buttons"><button id="startEditProfileBtn" class="primary">✏️ Редактировать профиль</button></div>`;
+                }
+
+                container.innerHTML = html;
+
+                // обработчик копирования
+                document.getElementById('copyLinkBtn')?.addEventListener('click', () => {
+                    const input = document.getElementById('profileLinkInput');
+                    input.select();
+                    navigator.clipboard.writeText(input.value).then(() => alert('Ссылка скопирована!'));
+                });
+
+                // если владелец — вешаем обработчик на кнопку редактирования
+                if (isOwner && !isEditing) {
+                    document.getElementById('startEditProfileBtn')?.addEventListener('click', () => {
+                        renderEditProfile(nickname);
+                    });
+                }
+
+                // проверяем hash после загрузки
+                if (window.location.hash === `#profile-${nickname}`) {
+                    // ничего не делаем, уже открыт
+                }
+            }
+
+            // ---- режим редактирования профиля (только для владельца) ----
+            function renderEditProfile(nickname) {
+                const user = getUserByNick(nickname);
+                if (!user || !currentUser || currentUser.nickname !== nickname) return;
+
+                const container = document.getElementById('profileDisplay');
+                let linksHtml = '';
+                user.links.forEach((link, index) => {
+                    linksHtml += `
+                        <div class="link-edit-row" data-index="${index}">
+                            <input type="text" placeholder="Название" value="${link.title}" class="link-title-input">
+                            <input type="url" placeholder="https://..." value="${link.url}" class="link-url-input">
+                            <button class="small remove-link-btn">❌</button>
+                        </div>
+                    `;
+                });
+
+                const avatarOptions = ['🐵', '🙈', '🙉', '🙊', '🐒', '🦍', '🧑‍💻'];
+                const avatarSelect = avatarOptions.map(emo => `<option value="${emo}" ${user.avatar === emo ? 'selected' : ''}>${emo}</option>`).join('');
+
+                const editHtml = `
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            <select id="editAvatar" class="small">${avatarSelect}</select>
+                        </div>
+                        <div class="profile-title">
+                            <input type="text" id="editNickname" value="${user.nickname}" placeholder="Ник" disabled style="background:#3a3a4e; color:#ccc;">
+                            <textarea id="editBio" rows="2" placeholder="О себе..." class="profile-bio">${user.bio || ''}</textarea>
+                        </div>
+                    </div>
+                    <div class="links-section">
+                        <h3>🔗 Редактировать ссылки</h3>
+                        <div id="linksEditContainer">${linksHtml}</div>
+                        <button id="addLinkBtn" class="small">➕ Добавить ссылку</button>
+                    </div>
+                    <div class="action-buttons">
+                        <button id="saveProfileBtn" class="primary">💾 Сохранить</button>
+                        <button id="cancelEditBtn">Отмена</button>
+                    </div>
+                `;
+                container.innerHTML = editHtml;
+
+                // добавление новой ссылки
+                document.getElementById('addLinkBtn')?.addEventListener('click', () => {
+                    const container = document.getElementById('linksEditContainer');
+                    const newRow = document.createElement('div');
+                    newRow.className = 'link-edit-row';
+                    newRow.innerHTML = `
+                        <input type="text" placeholder="Название" class="link-title-input" value="Новая ссылка">
+                        <input type="url" placeholder="https://..." class="link-url-input" value="https://">
+                        <button class="small remove-link-btn">❌</button>
+                    `;
+                    container.appendChild(newRow);
+                    attachRemoveListeners();
+                });
+
+                function attachRemoveListeners() {
+                    document.querySelectorAll('.remove-link-btn').forEach(btn => {
+                        btn.removeEventListener('click', removeHandler);
+                        btn.addEventListener('click', removeHandler);
+                    });
+                }
+                function removeHandler(e) {
+                    e.target.closest('.link-edit-row')?.remove();
+                }
+                attachRemoveListeners();
+
+                // сохранение
+                document.getElementById('saveProfileBtn')?.addEventListener('click', () => {
+                    const newBio = document.getElementById('editBio')?.value || '';
+                    const newAvatar = document.getElementById('editAvatar')?.value || '🐵';
+
+                    // собираем ссылки
+                    const linkRows = document.querySelectorAll('.link-edit-row');
+                    const newLinks = [];
+                    linkRows.forEach(row => {
+                        const title = row.querySelector('.link-title-input')?.value.trim();
+                        const url = row.querySelector('.link-url-input')?.value.trim();
+                        if (title && url) newLinks.push({ title, url });
+                    });
+
+                    const updatedUser = {
+                        ...user,
+                        bio: newBio,
+                        avatar: newAvatar,
+                        links: newLinks,
+                    };
+
+                    // обновляем в массиве users
+                    updateUserInList(updatedUser);
+                    // если это текущий юзер, обновляем сессионную копию
+                    if (currentUser && currentUser.nickname === nickname) {
+                        currentUser = { ...updatedUser };
+                    }
+
+                    // выходим из режима редактирования
+                    renderProfileView(nickname, false);
+                    renderProfilesList(nickname);
+                });
+
+                document.getElementById('cancelEditBtn')?.addEventListener('click', () => {
+                    renderProfileView(nickname, false);
+                });
+            }
+
+            // ---- обновление UI шапки ----
+            function renderHeader() {
+                const authSection = document.getElementById('authSection');
+                if (currentUser) {
+                    authSection.innerHTML = `
+                        <div class="user-info">
+                            <div class="avatar-mini">${currentUser.avatar || '🐵'}</div>
+                            <span class="username-mini">${currentUser.nickname}</span>
+                        </div>
+                        <button id="logoutBtn">Выйти</button>
+                    `;
+                    document.getElementById('logoutBtn')?.addEventListener('click', () => {
+                        currentUser = null;
+                        saveSession(null);
+                        renderHeader();
+                        // сбрасываем просмотр на первого в списке
+                        if (users.length) renderProfileView(users[0].nickname);
+                        renderProfilesList(users[0]?.nickname || null);
+                    });
+                } else {
+                    authSection.innerHTML = `
+                        <button id="loginBtn">Войти</button>
+                        <button id="registerBtn" class="primary">Регистрация</button>
+                    `;
+                    document.getElementById('loginBtn')?.addEventListener('click', openLoginModal);
+                    document.getElementById('registerBtn')?.addEventListener('click', openRegisterModal);
+                }
+            }
+
+            // ---- модалки ----
+            function openRegisterModal() {
+                const modal = document.getElementById('registerModal');
+                const input = document.getElementById('regNickname');
+                const error = document.getElementById('regError');
+                input.value = '';
+                error.textContent = '';
+                modal.classList.remove('hidden');
+
+                const closeHandler = () => modal.classList.add('hidden');
+                document.getElementById('closeRegister').onclick = closeHandler;
+
+                document.getElementById('registerConfirm').onclick = () => {
+                    const nick = input.value.trim();
+                    if (!nick) {
+                        error.textContent = 'Введите никнейм';
+                        return;
+                    }
+                    if (users.some(u => u.nickname.toLowerCase() === nick.toLowerCase())) {
+                        error.textContent = 'Занятый никнейм занять нельзя';
+                        return;
+                    }
+                    // создаём нового
+                    const newUser = {
+                        nickname: nick,
+                        bio: 'Новая обезьянка',
+                        avatar: '🐵',
+                        links: []
+                    };
+                    users.push(newUser);
+                    saveUsers();
+                    currentUser = { ...newUser };
+                    saveSession(nick);
+                    modal.classList.add('hidden');
+                    renderHeader();
+                    renderProfilesList(nick);
+                    renderProfileView(nick);
+                };
+            }
+
+            function openLoginModal() {
+                const modal = document.getElementById('loginModal');
+                const usersDiv = document.getElementById('usersList');
+                usersDiv.innerHTML = '';
+                users.forEach(u => {
+                    const btn = document.createElement('button');
+                    btn.className = 'user-select-btn';
+                    btn.textContent = `${u.avatar || '🐵'} ${u.nickname}`;
+                    btn.onclick = () => {
+                        currentUser = { ...u };
+                        saveSession(u.nickname);
+                        modal.classList.add('hidden');
+                        renderHeader();
+                        renderProfilesList(u.nickname);
+                        renderProfileView(u.nickname);
+                    };
+                    usersDiv.appendChild(btn);
+                });
+                modal.classList.remove('hidden');
+                document.getElementById('closeLogin').onclick = () => modal.classList.add('hidden');
+            }
+
+            // ---- инициализация и hash-навигация ----
+            function init() {
+                loadData();
+                renderHeader();
+
+                // если есть текущий юзер, показываем его, иначе первого
+                let initialNick = currentUser ? currentUser.nickname : (users[0]?.nickname || null);
+                // проверяем hash
+                const hashMatch = window.location.hash.match(/^#profile-(.+)$/);
+                if (hashMatch) {
+                    const hashNick = decodeURIComponent(hashMatch[1]);
+                    if (getUserByNick(hashNick)) initialNick = hashNick;
+                }
+
+                if (initialNick) {
+                    renderProfileView(initialNick);
+                    renderProfilesList(initialNick);
+                }
+
+                // слушаем изменение hash
+                window.addEventListener('hashchange', () => {
+                    const match = window.location.hash.match(/^#profile-(.+)$/);
+                    if (match) {
+                        const nick = decodeURIComponent(match[1]);
+                        if (getUserByNick(nick)) {
+                            renderProfileView(nick);
+                            renderProfilesList(nick);
+                        }
+                    }
+                });
+            }
+
+            init();
+        })();
+    </script>
+</body>
+</html>
